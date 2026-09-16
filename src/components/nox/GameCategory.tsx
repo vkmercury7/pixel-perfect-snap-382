@@ -12,11 +12,13 @@ export function GameCategory({
   games: Game[];
   delay?: number | undefined;
 }) {
+  const Icon = category.icon;
+
   return (
     <section id={category.id} className="mt-6 first:mt-4">
       <div className="mb-2.5 flex items-center justify-between gap-3">
         <h2 className="flex items-center gap-2 text-sm font-bold uppercase tracking-wide text-foreground sm:text-base">
-          <span aria-hidden>{category.icon}</span>
+          <Icon className="h-4 w-4 text-primary" />
           {category.label}
         </h2>
         <button

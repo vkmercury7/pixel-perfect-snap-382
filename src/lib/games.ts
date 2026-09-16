@@ -1,3 +1,5 @@
+import { Flame, Gem, Rocket, Sparkles, Star, Wallet, type LucideIcon } from "lucide-react";
+
 import coverTiger from "@/assets/cover-tiger.jpg";
 import coverDragon from "@/assets/cover-dragon.jpg";
 import coverCrash from "@/assets/cover-crash.jpg";
@@ -19,16 +21,16 @@ export type CategoryId = "destaque" | "populares" | "slots" | "crash" | "novidad
 export interface Category {
   id: CategoryId;
   label: string;
-  icon: string;
+  icon: LucideIcon;
 }
 
 export const categories: Category[] = [
-  { id: "destaque", label: "Em destaque", icon: "🔥" },
-  { id: "populares", label: "Mais jogados", icon: "⭐" },
-  { id: "slots", label: "Slots", icon: "🎰" },
-  { id: "crash", label: "Crash", icon: "🚀" },
-  { id: "novidades", label: "Novidades", icon: "🆕" },
-  { id: "exclusivos", label: "Exclusivos", icon: "💎" },
+  { id: "destaque", label: "Em destaque", icon: Flame },
+  { id: "populares", label: "Mais jogados", icon: Star },
+  { id: "slots", label: "Slots", icon: Wallet },
+  { id: "crash", label: "Crash", icon: Rocket },
+  { id: "novidades", label: "Novidades", icon: Sparkles },
+  { id: "exclusivos", label: "Exclusivos", icon: Gem },
 ];
 
 /**

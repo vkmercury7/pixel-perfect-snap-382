@@ -136,7 +136,7 @@ export function RegisterModal() {
               />
               <div className="flex items-stretch gap-2">
                 <span className="flex shrink-0 items-center gap-1.5 rounded-xl border border-input bg-surface px-3 text-sm text-muted-foreground">
-                  🇧🇷 +55
+                  +55
                 </span>
                 <input
                   className={fieldClass}
