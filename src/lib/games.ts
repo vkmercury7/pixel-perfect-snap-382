@@ -3,6 +3,9 @@ import { Flame, Gem, Rocket, Sparkles, Star, Wallet, type LucideIcon } from "luc
 import coverTiger from "@/assets/cover-tiger.jpg";
 import coverDragon from "@/assets/cover-dragon.jpg";
 import coverCrash from "@/assets/cover-crash.jpg";
+import artTiger from "@/assets/fortune_tiger.jpg.asset.json";
+import artRabbit from "@/assets/fortune_rabbit.png.asset.json";
+import artOx from "@/assets/fortune_ox.jpg.asset.json";
 
 export type GameTag = "hot" | "new" | "exclusive";
 
@@ -39,9 +42,9 @@ export const categories: Category[] = [
  * resposta da API do provedor de jogos.
  */
 export const games: Game[] = [
-  { id: "fortune-tiger", name: "Fortune Tiger", provider: "Demo Play", cover: coverTiger, categories: ["destaque", "populares", "slots"], tag: "hot", players: 4821 },
-  { id: "fortune-rabbit", name: "Fortune Rabbit", provider: "Demo Play", cover: coverTiger, categories: ["destaque", "populares", "slots"], tag: "hot", players: 3910 },
-  { id: "fortune-ox", name: "Fortune Ox", provider: "Demo Play", cover: coverDragon, categories: ["destaque", "slots", "populares"], players: 3120 },
+  { id: "fortune-tiger", name: "Fortune Tiger", provider: "Demo Play", cover: artTiger.url, categories: ["destaque", "populares", "slots"], tag: "hot", players: 4821 },
+  { id: "fortune-rabbit", name: "Fortune Rabbit", provider: "Demo Play", cover: artRabbit.url, categories: ["destaque", "populares", "slots"], tag: "hot", players: 3910 },
+  { id: "fortune-ox", name: "Fortune Ox", provider: "Demo Play", cover: artOx.url, categories: ["destaque", "slots", "populares"], players: 3120 },
   { id: "fortune-dragon", name: "Fortune Dragon", provider: "Demo Play", cover: coverDragon, categories: ["destaque", "slots"], tag: "new", players: 2870 },
   { id: "fortune-mouse", name: "Fortune Mouse", provider: "Demo Play", cover: coverTiger, categories: ["slots", "populares"], players: 2410 },
   { id: "fortune-snake", name: "Fortune Snake", provider: "Demo Play", cover: coverDragon, categories: ["slots", "novidades"], tag: "new", players: 1980 },
