@@ -9,6 +9,7 @@ import {
   Wallet,
 } from "lucide-react";
 
+import { PixKeySection } from "@/components/nox/PixKeySection";
 import { Shell } from "@/components/nox/Shell";
 import { useAuth } from "@/lib/auth";
 import { useAuthModal } from "@/lib/auth-modal";
@@ -124,6 +125,8 @@ function AccountPage() {
           </button>
         </div>
       </section>
+
+      <PixKeySection />
 
       <nav className="surface-panel mt-3 divide-y divide-border rounded-2xl">
         {menu.map((item) => {
