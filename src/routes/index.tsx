@@ -40,7 +40,7 @@ function Home() {
         />
       ))}
       <p className="mt-10 text-center text-[0.7rem] leading-relaxed text-muted-foreground">
-        -Proibido para menores de 18 anos.
+        Proibido para menores de 18 anos
       </p>
     </Shell>
   );
