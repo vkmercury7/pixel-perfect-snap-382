@@ -9,6 +9,7 @@ import {
   Wallet,
 } from "lucide-react";
 
+import { PixKeySection } from "@/components/nox/PixKeySection";
 import { Shell } from "@/components/nox/Shell";
 import { useAuth } from "@/lib/auth";
 import { useAuthModal } from "@/lib/auth-modal";
