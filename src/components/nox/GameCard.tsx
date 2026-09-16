@@ -1,7 +1,7 @@
 import { Heart, Play, Users } from "lucide-react";
-import { toast } from "sonner";
 
 import { useAuth } from "@/lib/auth";
+import { usePlayGame } from "@/lib/play-game";
 import { cn } from "@/lib/utils";
 import type { Game } from "@/lib/games";
 
@@ -13,6 +13,7 @@ const tagLabel: Record<string, string> = {
 
 export function GameCard({ game, className }: { game: Game; className?: string }) {
   const { favorites, toggleFavorite } = useAuth();
+  const { playGame } = usePlayGame();
   const isFavorite = favorites.includes(game.id);
 
   return (
