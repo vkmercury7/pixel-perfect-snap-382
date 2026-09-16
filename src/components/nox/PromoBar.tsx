@@ -3,21 +3,9 @@ import { Clock3, X } from "lucide-react";
 
 import promoRabbit from "@/assets/promo-rabbit.png";
 import { Button } from "@/components/ui/button";
-import { useAuth } from "@/lib/auth";
 import { useAuthModal } from "@/lib/auth-modal";
 
 const PROMO_DURATION_MS = 30 * 60 * 1000;
-const PROMO_END_KEY = "nox.promo.rabbit.endAt";
-const PROMO_DISMISSED_KEY = "nox.promo.rabbit.dismissed";
-
-function getOrCreateEndTime() {
-  const stored = Number(localStorage.getItem(PROMO_END_KEY));
-  if (Number.isFinite(stored) && stored > 0) return stored;
-
-  const endAt = Date.now() + PROMO_DURATION_MS;
-  localStorage.setItem(PROMO_END_KEY, String(endAt));
-  return endAt;
-}
 
 function formatTime(milliseconds: number) {
   const totalSeconds = Math.max(0, Math.ceil(milliseconds / 1000));
@@ -27,30 +15,21 @@ function formatTime(milliseconds: number) {
 }
 
 export function PromoBar() {
-  const { user, ready } = useAuth();
   const { open } = useAuthModal();
   const [remaining, setRemaining] = useState(PROMO_DURATION_MS);
-  const [visible, setVisible] = useState(false);
+  const [visible, setVisible] = useState(true);
   const [closing, setClosing] = useState(false);
 
   useEffect(() => {
-    if (!ready || user || localStorage.getItem(PROMO_DISMISSED_KEY) === "true") {
-      setVisible(false);
-      return;
-    }
-
-    const endAt = getOrCreateEndTime();
+    const endAt = Date.now() + PROMO_DURATION_MS;
     const updateRemaining = () => setRemaining(Math.max(0, endAt - Date.now()));
-    updateRemaining();
-    setVisible(true);
 
     const timer = window.setInterval(updateRemaining, 1000);
     return () => window.clearInterval(timer);
-  }, [ready, user]);
+  }, []);
 
   function dismiss() {
     setClosing(true);
-    localStorage.setItem(PROMO_DISMISSED_KEY, "true");
     window.setTimeout(() => setVisible(false), 220);
   }
 
@@ -58,7 +37,7 @@ export function PromoBar() {
     open("register");
   }
 
-  if (!visible || user) return null;
+  if (!visible) return null;
 
   return (
     <aside
