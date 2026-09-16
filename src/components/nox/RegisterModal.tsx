@@ -30,7 +30,7 @@ const fieldClass =
 
 export function RegisterModal() {
   const { mode, open, close } = useAuthModal();
-  const { user, register, login } = useAuth();
+  const { user, ready, register, login } = useAuth();
 
   const [cpf, setCpf] = useState("");
   const [email, setEmail] = useState("");
@@ -40,13 +40,13 @@ export function RegisterModal() {
   const [accepted, setAccepted] = useState(false);
   const [identifier, setIdentifier] = useState("");
 
-  // Abre o cadastro automaticamente ~3s após a primeira visita.
+  // Abre o cadastro automaticamente ~3s após a primeira visita (nunca para quem já tem conta ativa).
   useEffect(() => {
-    if (user) return () => {};
+    if (!ready || user) return () => {};
     const timer = setTimeout(() => open("register"), 3000);
     return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [ready, user]);
 
 
   const isRegister = mode === "register";

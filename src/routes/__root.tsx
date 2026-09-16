@@ -14,6 +14,7 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider } from "@/lib/auth";
 import { AuthModalProvider } from "@/lib/auth-modal";
+import { PlayGameProvider } from "@/lib/play-game";
 import { WalletProvider } from "@/lib/wallet";
 
 
@@ -138,9 +139,11 @@ function RootComponent() {
       <AuthProvider>
         <WalletProvider>
           <AuthModalProvider>
-            {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-            <Outlet />
-            <Toaster position="top-center" />
+            <PlayGameProvider>
+              {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+              <Outlet />
+              <Toaster position="top-center" />
+            </PlayGameProvider>
           </AuthModalProvider>
         </WalletProvider>
       </AuthProvider>

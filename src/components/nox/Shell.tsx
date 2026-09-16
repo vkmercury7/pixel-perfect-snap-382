@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 
 import { BottomNavigation } from "./BottomNavigation";
 import { DepositModal } from "./DepositModal";
+import { DepositRequiredModal } from "./DepositRequiredModal";
 import { Header } from "./Header";
 import { RegisterModal } from "./RegisterModal";
 import { WithdrawModal } from "./WithdrawModal";
@@ -16,6 +17,7 @@ export function Shell({ children, beforeHeader }: { children: ReactNode; beforeH
       <RegisterModal />
       <DepositModal />
       <WithdrawModal />
+      <DepositRequiredModal />
     </div>
   );
 }
