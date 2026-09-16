@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { Shell } from "@/components/nox/Shell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import rabbitAsset from "@/assets/fortune_rabbit.png.asset.json";
+import rabbitAsset from "@/assets/fortune_rabbit.png";
 
 export const Route = createFileRoute("/bonus")({
   head: () => ({
@@ -73,7 +73,7 @@ function BonusPage() {
         <article className="surface-panel relative overflow-hidden rounded-2xl border border-primary/30 p-4 sm:col-span-2">
           <div className="flex items-start gap-3">
             <img
-              src={rabbitAsset.url}
+              src={rabbitAsset}
               alt="Fortune Rabbit"
               className="h-16 w-16 shrink-0 rounded-xl object-cover"
               loading="lazy"

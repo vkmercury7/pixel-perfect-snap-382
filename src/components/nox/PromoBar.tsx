@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Clock3, X } from "lucide-react";
 
-import promoArt from "@/assets/nox_promocao_30_rodadas.png.asset.json";
+import promoArt from "@/assets/nox_promocao_30_rodadas.png";
 import { Button } from "@/components/ui/button";
 import { useAuthModal } from "@/lib/auth-modal";
 
@@ -61,7 +61,7 @@ export function PromoBar() {
           className="min-w-0 flex-1 outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
           <img
-            src={promoArt.url}
+            src={promoArt}
             alt="30 rodadas grátis no Rabbit para contas novas"
             className="h-9 w-full object-contain object-left sm:h-12"
           />
