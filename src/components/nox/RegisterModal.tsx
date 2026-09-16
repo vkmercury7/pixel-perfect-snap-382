@@ -53,10 +53,23 @@ export function RegisterModal() {
 
   function handleRegister(event: React.FormEvent) {
     event.preventDefault();
-    if (cpf.replace(/\D/g, "").length !== 11) return toast.error("Informe um CPF com 11 dígitos.");
-    if (phone.replace(/\D/g, "").length < 10) return toast.error("Informe um telefone válido.");
-    if (password.length < 6) return toast.error("A senha precisa ter ao menos 6 caracteres.");
-    if (!accepted) return toast.error("É necessário aceitar os termos para continuar.");
+    if (cpf.replace(/\D/g, "").length !== 11) {
+      toast.error("Informe um CPF com 11 dígitos.");
+      return;
+    }
+    if (phone.replace(/\D/g, "").length < 10) {
+      toast.error("Informe um telefone válido.");
+      return;
+    }
+    if (password.length < 6) {
+      toast.error("A senha precisa ter ao menos 6 caracteres.");
+      return;
+    }
+    if (!accepted) {
+      toast.error("É necessário aceitar os termos para continuar.");
+      return;
+    }
+
 
     const created = register({ cpf, email, phone: `+55 ${phone}`, password });
     close();
