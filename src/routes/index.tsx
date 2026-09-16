@@ -3,6 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { CategoryChips } from "@/components/nox/CategoryChips";
 import { GameCategory } from "@/components/nox/GameCategory";
 import { HeroBanner } from "@/components/nox/HeroBanner";
+import { PromoBar } from "@/components/nox/PromoBar";
 import { Shell } from "@/components/nox/Shell";
 import { categories, gamesByCategory } from "@/lib/games";
 
@@ -27,7 +28,7 @@ export const Route = createFileRoute("/")({
 
 function Home() {
   return (
-    <Shell>
+    <Shell beforeHeader={<PromoBar />}>
       <HeroBanner />
       <CategoryChips />
       {categories.map((category, i) => (
