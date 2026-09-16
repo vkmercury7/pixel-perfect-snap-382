@@ -125,6 +125,8 @@ function AccountPage() {
         </div>
       </section>
 
+      <PixKeySection />
+
       <nav className="surface-panel mt-3 divide-y divide-border rounded-2xl">
         {menu.map((item) => {
           const Icon = item.icon;
