@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { Search } from "lucide-react";
 
 import { AccountMenu } from "./AccountMenu";
+import { BalancePill } from "./BalancePill";
 import { Logo } from "./Logo";
 import { useAuth } from "@/lib/auth";
 import { useAuthModal } from "@/lib/auth-modal";
@@ -12,16 +13,18 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background/90 backdrop-blur-md">
-      <div className="mx-auto flex h-14 max-w-6xl items-center gap-3 px-4 sm:h-16">
-        <Link to="/" aria-label="NOX CASINO — início">
+      <div className="mx-auto flex h-14 max-w-6xl items-center gap-2 px-4 sm:h-16 sm:gap-3">
+        <Link to="/" aria-label="NOX CASINO — início" className="shrink-0">
           <Logo />
         </Link>
 
-        <div className="ml-auto flex items-center gap-2">
+        {user ? <div className="mx-auto min-w-0 sm:ml-4 sm:mr-auto"><BalancePill /></div> : null}
+
+        <div className="ml-auto flex shrink-0 items-center gap-2">
           <button
             type="button"
             aria-label="Buscar jogos"
-            className="grid h-9 w-9 place-items-center rounded-xl border border-border bg-surface text-muted-foreground transition-colors hover:text-foreground"
+            className="hidden h-9 w-9 place-items-center rounded-xl border border-border bg-surface text-muted-foreground transition-colors hover:text-foreground sm:grid"
           >
             <Search className="h-4 w-4" />
           </button>

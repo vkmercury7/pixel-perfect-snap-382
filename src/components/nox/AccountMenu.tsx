@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { History, LogOut, Shield, UserRound } from "lucide-react";
+import { History, LogOut, Shield, UserRound, Wallet } from "lucide-react";
 
 import {
   DropdownMenu,
@@ -38,6 +38,11 @@ export function AccountMenu({ user }: { user: NoxUser }) {
         <DropdownMenuItem asChild>
           <Link to="/conta" className="cursor-pointer">
             <UserRound className="mr-2 h-4 w-4" /> Minha conta
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link to="/conta" hash="carteira" className="cursor-pointer">
+            <Wallet className="mr-2 h-4 w-4" /> Carteira
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
