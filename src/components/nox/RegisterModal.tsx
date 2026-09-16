@@ -42,11 +42,12 @@ export function RegisterModal() {
 
   // Abre o cadastro automaticamente ~3s após a primeira visita.
   useEffect(() => {
-    if (user) return;
+    if (user) return () => {};
     const timer = setTimeout(() => open("register"), 3000);
     return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
 
   const isRegister = mode === "register";
 
@@ -75,10 +76,8 @@ export function RegisterModal() {
 
   return (
     <Dialog open={mode !== null} onOpenChange={(o) => !o && close()}>
-      <DialogContent
-        showCloseButton
-        className="max-h-[92vh] gap-0 overflow-y-auto border-border bg-card p-0 sm:max-w-[26rem]"
-      >
+      <DialogContent className="max-h-[92vh] gap-0 overflow-y-auto border-border bg-card p-0 sm:max-w-[26rem]">
+
         <div className="relative">
           <img
             src={heroBanner}

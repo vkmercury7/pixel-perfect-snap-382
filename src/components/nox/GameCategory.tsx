@@ -6,11 +6,11 @@ import type { Category, Game } from "@/lib/games";
 export function GameCategory({
   category,
   games,
-  delay,
+  delay = 450,
 }: {
   category: Category;
   games: Game[];
-  delay?: number;
+  delay?: number | undefined;
 }) {
   return (
     <section id={category.id} className="mt-6 first:mt-4">
@@ -30,3 +30,4 @@ export function GameCategory({
     </section>
   );
 }
+
