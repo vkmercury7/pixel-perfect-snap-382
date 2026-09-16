@@ -10,33 +10,73 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as BonusRouteImport } from './routes/bonus'
+import { Route as CassinoRouteImport } from './routes/cassino'
+import { Route as ContaRouteImport } from './routes/conta'
+import { Route as FavoritosRouteImport } from './routes/favoritos'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BonusRoute = BonusRouteImport.update({
+  id: '/bonus',
+  path: '/bonus',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CassinoRoute = CassinoRouteImport.update({
+  id: '/cassino',
+  path: '/cassino',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContaRoute = ContaRouteImport.update({
+  id: '/conta',
+  path: '/conta',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FavoritosRoute = FavoritosRouteImport.update({
+  id: '/favoritos',
+  path: '/favoritos',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/bonus': typeof BonusRoute
+  '/cassino': typeof CassinoRoute
+  '/conta': typeof ContaRoute
+  '/favoritos': typeof FavoritosRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/bonus': typeof BonusRoute
+  '/cassino': typeof CassinoRoute
+  '/conta': typeof ContaRoute
+  '/favoritos': typeof FavoritosRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/bonus': typeof BonusRoute
+  '/cassino': typeof CassinoRoute
+  '/conta': typeof ContaRoute
+  '/favoritos': typeof FavoritosRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/bonus' | '/cassino' | '/conta' | '/favoritos'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/bonus' | '/cassino' | '/conta' | '/favoritos'
+  id: '__root__' | '/' | '/bonus' | '/cassino' | '/conta' | '/favoritos'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  BonusRoute: typeof BonusRoute
+  CassinoRoute: typeof CassinoRoute
+  ContaRoute: typeof ContaRoute
+  FavoritosRoute: typeof FavoritosRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +88,43 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/bonus': {
+      id: '/bonus'
+      path: '/bonus'
+      fullPath: '/bonus'
+      preLoaderRoute: typeof BonusRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cassino': {
+      id: '/cassino'
+      path: '/cassino'
+      fullPath: '/cassino'
+      preLoaderRoute: typeof CassinoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/conta': {
+      id: '/conta'
+      path: '/conta'
+      fullPath: '/conta'
+      preLoaderRoute: typeof ContaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/favoritos': {
+      id: '/favoritos'
+      path: '/favoritos'
+      fullPath: '/favoritos'
+      preLoaderRoute: typeof FavoritosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  BonusRoute: BonusRoute,
+  CassinoRoute: CassinoRoute,
+  ContaRoute: ContaRoute,
+  FavoritosRoute: FavoritosRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
