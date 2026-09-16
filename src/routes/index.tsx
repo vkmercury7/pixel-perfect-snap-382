@@ -40,8 +40,6 @@ function Home() {
         />
       ))}
       <p className="mt-10 text-center text-[0.7rem] leading-relaxed text-muted-foreground">
-        Ambiente de demonstração. Nenhum jogo com dinheiro real, depósito ou saque está disponível.
-        <br />
         Proibido para menores de 18 anos.
       </p>
     </Shell>
