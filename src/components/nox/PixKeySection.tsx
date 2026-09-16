@@ -37,7 +37,7 @@ function readAll(): Record<string, StoredPixKey> {
 function maskKey(value: string) {
   const clean = value.trim();
   if (clean.includes("@")) {
-    const [name, domain] = clean.split("@");
+    const [name = "", domain = ""] = clean.split("@");
     const visible = name.slice(0, 2);
     return `${visible}${"*".repeat(Math.max(name.length - 2, 2))}@${domain}`;
   }
