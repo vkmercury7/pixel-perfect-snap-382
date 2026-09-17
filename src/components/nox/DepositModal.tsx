@@ -1,26 +1,79 @@
-import { useEffect, useState } from "react";
-import { ArrowLeft, QrCode } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Check, Copy, LoaderCircle, QrCode } from "lucide-react";
+import { useServerFn } from "@tanstack/react-start";
+import { toast } from "sonner";
 
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { createPixDeposit, type CreatedPixCharge } from "@/lib/deposit.functions";
 import { formatBRL } from "@/lib/money";
 import { useWallet } from "@/lib/wallet";
 
 const QUICK_VALUES = [1000, 2000, 3000, 4000, 5000, 10000, 20000, 50000, 100000];
 
 export function DepositModal() {
-  const { modal, closeModal } = useWallet();
+  const { modal, closeModal, refresh } = useWallet();
+  const createDeposit = useServerFn(createPixDeposit);
   const open = modal === "deposit";
   const [selectedCents, setSelectedCents] = useState<number | null>(null);
   const [step, setStep] = useState<"amount" | "pix">("amount");
+  const [charge, setCharge] = useState<CreatedPixCharge | null>(null);
+  const [creating, setCreating] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const [now, setNow] = useState(() => Date.now());
 
   useEffect(() => {
     if (open) {
       setSelectedCents(null);
       setStep("amount");
+      setCharge(null);
+      setCreating(false);
+      setCopied(false);
     }
   }, [open]);
 
+  useEffect(() => {
+    if (!charge) return;
+    setNow(Date.now());
+    const interval = window.setInterval(() => setNow(Date.now()), 1000);
+    return () => window.clearInterval(interval);
+  }, [charge]);
+
   const cents = selectedCents ?? 0;
+  const remainingSeconds = useMemo(() => {
+    if (!charge) return 0;
+    const expiresAt = new Date(charge.expiresAt).getTime();
+    if (!Number.isFinite(expiresAt)) return 0;
+    return Math.max(0, Math.floor((expiresAt - now) / 1000));
+  }, [charge, now]);
+  const countdown = `${String(Math.floor(remainingSeconds / 60)).padStart(2, "0")}:${String(remainingSeconds % 60).padStart(2, "0")}`;
+
+  const handleContinue = async () => {
+    if (selectedCents === null || creating) return;
+    setCreating(true);
+    try {
+      const result = await createDeposit({ data: { amountCents: selectedCents } });
+      setCharge(result);
+      setStep("pix");
+      await refresh();
+    } catch {
+      toast.error("Não foi possível gerar o PIX. Tente novamente.");
+    } finally {
+      setCreating(false);
+    }
+  };
+
+  const handleCopy = async () => {
+    if (!charge) return;
+    try {
+      await navigator.clipboard.writeText(charge.qrCode);
+      setCopied(true);
+      toast.success("PIX copiado!");
+      window.setTimeout(() => setCopied(false), 2000);
+    } catch {
+      toast.error("Não foi possível copiar o PIX.");
+    }
+  };
 
   return (
     <Dialog open={open} onOpenChange={(next) => !next && closeModal()}>
@@ -36,30 +89,31 @@ export function DepositModal() {
               {QUICK_VALUES.map((quick) => {
                 const active = cents === quick;
                 return (
-                  <button
+                  <Button
                     key={quick}
                     type="button"
+                    variant="outline"
                     onClick={() => setSelectedCents(quick)}
-                    className={`rounded-xl border py-2.5 text-xs font-bold transition-colors ${
+                    className={`h-auto rounded-xl py-2.5 text-xs font-bold ${
                       active
                         ? "border-primary bg-primary/15 text-primary"
                         : "border-border bg-surface text-foreground hover:bg-accent"
                     }`}
                   >
                     {formatBRL(quick).replace(",00", "")}
-                  </button>
+                  </Button>
                 );
               })}
             </div>
 
-            <button
+            <Button
               type="button"
-              disabled={selectedCents === null}
-              onClick={() => setStep("pix")}
-              className="mt-1 w-full rounded-xl bg-primary py-3 text-xs font-bold uppercase tracking-wide text-primary-foreground shadow-glow transition-opacity hover:opacity-90 disabled:opacity-40"
+              disabled={selectedCents === null || creating}
+              onClick={() => void handleContinue()}
+              className="mt-1 h-auto w-full rounded-xl py-3 text-xs font-bold uppercase tracking-wide shadow-glow"
             >
-              Continuar
-            </button>
+              {creating ? <><LoaderCircle className="animate-spin" /> Gerando PIX...</> : "Continuar"}
+            </Button>
             <p className="text-center text-[0.65rem] text-muted-foreground">
               Após o pagamento o valor será creditado automaticamente em sua conta.
             </p>
@@ -67,25 +121,28 @@ export function DepositModal() {
         ) : (
           <>
             <DialogHeader>
-              <DialogTitle className="text-base font-extrabold uppercase tracking-wide">Pagamento via PIX</DialogTitle>
-              <DialogDescription className="text-xs">
-                Em breve esta etapa será conectada ao nosso sistema de pagamentos.
-              </DialogDescription>
+              <DialogTitle className="text-base font-extrabold uppercase tracking-wide">PIX gerado</DialogTitle>
+              <DialogDescription className="text-xs">Escaneie o QR Code ou copie o código PIX.</DialogDescription>
             </DialogHeader>
 
-            <div className="surface-panel flex flex-col items-center gap-2 rounded-2xl p-6 text-center">
-              <QrCode className="h-12 w-12 text-primary" />
-              <p className="text-xs text-muted-foreground">Valor selecionado</p>
-              <p className="text-2xl font-extrabold">{formatBRL(cents)}</p>
+            <div className="surface-panel flex flex-col items-center gap-3 rounded-2xl p-4 text-center">
+              <p className="text-xs text-muted-foreground">Valor</p>
+              <p className="text-2xl font-extrabold">{formatBRL(charge?.amountCents ?? cents)}</p>
+              {charge?.qrCodeUrl ? (
+                <div className="flex size-48 items-center justify-center overflow-hidden rounded-lg bg-foreground p-2">
+                  <img src={charge.qrCodeUrl} alt="QR Code PIX" className="block h-full w-full object-contain" />
+                </div>
+              ) : (
+                <QrCode className="h-12 w-12 text-primary" />
+              )}
+              <div className="w-full rounded-lg border border-border bg-background p-3">
+                <p className="line-clamp-3 break-all text-left text-xs text-muted-foreground">{charge?.qrCode}</p>
+              </div>
+              <Button type="button" onClick={() => void handleCopy()} className="h-auto w-full rounded-xl py-3 text-xs font-bold uppercase tracking-wide">
+                {copied ? <Check /> : <Copy />} {copied ? "PIX copiado!" : "Copiar código PIX"}
+              </Button>
+              <p className="text-xs text-muted-foreground">Expira em: <span className="font-bold text-foreground">{countdown}</span></p>
             </div>
-
-            <button
-              type="button"
-              onClick={() => setStep("amount")}
-              className="flex w-full items-center justify-center gap-2 rounded-xl border border-border bg-surface py-3 text-xs font-bold uppercase tracking-wide"
-            >
-              <ArrowLeft className="h-4 w-4" /> Voltar
-            </button>
           </>
         )}
       </DialogContent>
