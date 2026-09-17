@@ -15,9 +15,11 @@ const depositInput = z.object({
 
 const pinPayResponse = z.object({
   id: z.union([z.string(), z.number()]).transform(String),
-  qr_code: z.string().min(1),
-  qr_code_url: z.string().min(1),
-  expires_at: z.string().min(1),
+  pix: z.object({
+    qr_code: z.string().min(1),
+    qr_code_url: z.string().min(1),
+    expires_at: z.string().min(1),
+  }),
   amount: z.number().optional(),
   request_id: z.string().optional(),
 });
@@ -162,16 +164,6 @@ export const createPixDeposit = createServerFn({ method: "POST" })
       console.error("[PinPay] Invalid success response", {
         transactionId: transaction.id,
         requestId: safeRequestId(responsePayload),
-        responseKeys: responsePayload && typeof responsePayload === "object" ? Object.keys(responsePayload) : [],
-        dataKeys: responsePayload && typeof responsePayload === "object" && "data" in responsePayload
-          && (responsePayload as { data: unknown }).data && typeof (responsePayload as { data: unknown }).data === "object"
-          ? Object.keys((responsePayload as { data: Record<string, unknown> }).data)
-          : [],
-        pixKeys: responsePayload && typeof responsePayload === "object"
-          && (responsePayload as Record<string, unknown>)["pix"]
-          && typeof (responsePayload as Record<string, unknown>)["pix"] === "object"
-          ? Object.keys((responsePayload as { pix: Record<string, unknown> }).pix)
-          : [],
       });
       await supabaseAdmin.from("wallet_transactions").update({ status: "canceled" }).eq("id", transaction.id);
       throw new Error("Não foi possível gerar o PIX. Tente novamente.");
@@ -192,9 +184,9 @@ export const createPixDeposit = createServerFn({ method: "POST" })
 
     return {
       transactionId: transaction.id,
-      qrCode: parsed.data.qr_code,
-      qrCodeUrl: parsed.data.qr_code_url,
-      expiresAt: parsed.data.expires_at,
+      qrCode: parsed.data.pix.qr_code,
+      qrCodeUrl: parsed.data.pix.qr_code_url,
+      expiresAt: parsed.data.pix.expires_at,
       amountCents: data.amountCents,
     };
   });
