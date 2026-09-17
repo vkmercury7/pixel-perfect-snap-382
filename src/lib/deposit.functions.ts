@@ -80,8 +80,7 @@ export const createPixDeposit = createServerFn({ method: "POST" })
       throw new Error("Não foi possível gerar o PIX. Tente novamente.");
     }
 
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: transaction, error: transactionError } = await supabaseAdmin
+    const { data: transaction, error: transactionError } = await context.supabase
       .from("wallet_transactions")
       .insert({
         user_id: context.userId,
@@ -140,7 +139,13 @@ export const createPixDeposit = createServerFn({ method: "POST" })
         transactionId: transaction.id,
         reason: error instanceof Error && error.name === "AbortError" ? "timeout" : "network_error",
       });
-      await supabaseAdmin.from("wallet_transactions").update({ status: "canceled" }).eq("id", transaction.id);
+      await context.supabase
+        .from("wallet_transactions")
+        .update({ status: "canceled" })
+        .eq("id", transaction.id)
+        .eq("user_id", context.userId)
+        .eq("type", "deposit")
+        .eq("status", "pending");
       throw new Error("Não foi possível gerar o PIX. Tente novamente.");
     } finally {
       clearTimeout(timeout);
@@ -153,7 +158,13 @@ export const createPixDeposit = createServerFn({ method: "POST" })
         requestId: safeRequestId(responsePayload),
         providerError: safeProviderError(responsePayload),
       });
-      await supabaseAdmin.from("wallet_transactions").update({ status: "canceled" }).eq("id", transaction.id);
+      await context.supabase
+        .from("wallet_transactions")
+        .update({ status: "canceled" })
+        .eq("id", transaction.id)
+        .eq("user_id", context.userId)
+        .eq("type", "deposit")
+        .eq("status", "pending");
       throw new Error("Não foi possível gerar o PIX. Tente novamente.");
     }
 
@@ -167,14 +178,22 @@ export const createPixDeposit = createServerFn({ method: "POST" })
         transactionId: transaction.id,
         requestId: safeRequestId(responsePayload),
       });
-      await supabaseAdmin.from("wallet_transactions").update({ status: "canceled" }).eq("id", transaction.id);
+      await context.supabase
+        .from("wallet_transactions")
+        .update({ status: "canceled" })
+        .eq("id", transaction.id)
+        .eq("user_id", context.userId)
+        .eq("type", "deposit")
+        .eq("status", "pending");
       throw new Error("Não foi possível gerar o PIX. Tente novamente.");
     }
 
-    const { error: updateError } = await supabaseAdmin
+    const { error: updateError } = await context.supabase
       .from("wallet_transactions")
       .update({ external_id: parsed.data.id })
       .eq("id", transaction.id)
+      .eq("user_id", context.userId)
+      .eq("type", "deposit")
       .eq("status", "pending");
     if (updateError) {
       console.error("[PinPay] Could not link external charge", {
