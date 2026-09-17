@@ -16,6 +16,18 @@ import artOinkster from "@/assets/oinkster.jpg";
 import artGiga from "@/assets/giga-match-gems.jpg";
 import artPowerHot from "@/assets/power-hot-40.jpg";
 import artInferno from "@/assets/inferno-fortune.jpg";
+import artFortunePirates from "@/assets/fortune-pirates.png";
+import artFortuneFruits from "@/assets/fortune-fruits.png";
+import artBurningClassics from "@/assets/burning-classics-royal-edition.png";
+import artClassicCoins from "@/assets/classic-coins.png";
+import artDiamondHits from "@/assets/diamond-hits.png";
+import artGoldGoldGold from "@/assets/gold-gold-gold-5000.png";
+import artHollyJollyBonanza from "@/assets/holly-jolly-bonanza-2.png";
+import artHollyJollyCashPig from "@/assets/holly-jolly-cash-pig.png";
+import artFishyFishyGuy from "@/assets/fishy-fishy-guy.png";
+import artJokersFortune from "@/assets/jokers-fortune.png";
+import artLuckyNightMarket from "@/assets/lucky-night-market.png";
+import artCherryXmas from "@/assets/cherry-xmas.png";
 
 export type GameTag = "hot" | "new" | "exclusive";
 
@@ -68,6 +80,18 @@ export const games: Game[] = [
   { id: "aviator", name: "Aviator", provider: "Demo Play", cover: coverCrash, categories: ["crash", "populares"], tag: "hot", players: 5240 },
   { id: "jetx", name: "JetX", provider: "Demo Play", cover: coverJet, categories: ["crash", "populares"], players: 3320 },
   { id: "nox-rocket", name: "Nox Rocket", provider: "Nox Originals", cover: coverRocket, categories: ["crash", "exclusivos", "novidades"], tag: "exclusive", players: 1420 },
+  { id: "fortune-pirates", name: "Fortune Pirates", provider: "Demo Play", cover: artFortunePirates, categories: ["destaque", "exclusivos"], players: 1770 },
+  { id: "fortune-fruits", name: "Fortune Fruits", provider: "Banana Games", cover: artFortuneFruits, categories: ["populares", "slots"], players: 2230 },
+  { id: "burning-classics-royal-edition", name: "Burning Classics Royal Edition", provider: "Booming Games", cover: artBurningClassics, categories: ["slots", "exclusivos"], players: 1710 },
+  { id: "classic-coins", name: "Classic Coins", provider: "Booming Games", cover: artClassicCoins, categories: ["slots"], players: 1110 },
+  { id: "diamond-hits", name: "Diamond Hits", provider: "Booming Games", cover: artDiamondHits, categories: ["destaque", "populares"], players: 1810 },
+  { id: "gold-gold-gold-5000", name: "Gold Gold Gold 5000", provider: "Booming Games", cover: artGoldGoldGold, categories: ["populares", "exclusivos"], players: 2080 },
+  { id: "holly-jolly-bonanza-2", name: "Holly Jolly Bonanza 2", provider: "Booming Games", cover: artHollyJollyBonanza, categories: ["novidades", "slots"], tag: "new", players: 1010 },
+  { id: "holly-jolly-cash-pig", name: "Holly Jolly Cash Pig", provider: "Demo Play", cover: artHollyJollyCashPig, categories: ["novidades", "exclusivos"], tag: "new", players: 1030 },
+  { id: "fishy-fishy-guy", name: "Fishy Fishy Guy", provider: "Demo Play", cover: artFishyFishyGuy, categories: ["destaque", "novidades"], players: 1090 },
+  { id: "jokers-fortune", name: "Joker's Fortune", provider: "Demo Play", cover: artJokersFortune, categories: ["slots", "exclusivos"], players: 1090 },
+  { id: "lucky-night-market", name: "Lucky Night Market", provider: "Demo Play", cover: artLuckyNightMarket, categories: ["populares", "novidades"], players: 1200 },
+  { id: "cherry-xmas", name: "Cherry Xmas", provider: "Demo Play", cover: artCherryXmas, categories: ["novidades", "exclusivos"], tag: "new", players: 1040 },
 ];
 
 export function gamesByCategory(id: CategoryId): Game[] {
