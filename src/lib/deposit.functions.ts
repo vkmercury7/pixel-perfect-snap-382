@@ -123,6 +123,7 @@ export const createPixDeposit = createServerFn({ method: "POST" })
           },
           metadata: {
             external_reference: transaction.id,
+            checkout_url: "https://noxcassino.netlify.app/",
             wallet_transaction_id: transaction.id,
             user_id: context.userId,
           },
