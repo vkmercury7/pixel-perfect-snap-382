@@ -36,7 +36,7 @@ function digitsOnly(value: string) {
 
 function safeRequestId(payload: unknown): string | undefined {
   if (!payload || typeof payload !== "object") return undefined;
-  const value = (payload as Record<string, unknown>).request_id;
+  const value = (payload as Record<string, unknown>)["request_id"];
   return typeof value === "string" ? value.slice(0, 160) : undefined;
 }
 
