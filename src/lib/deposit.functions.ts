@@ -102,6 +102,7 @@ export const createPixDeposit = createServerFn({ method: "POST" })
 
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 12_000);
+    const requestedExpiresAt = new Date(Date.now() + 20 * 60 * 1000).toISOString();
     let response: Response;
     let responsePayload: unknown = null;
 
@@ -117,6 +118,7 @@ export const createPixDeposit = createServerFn({ method: "POST" })
           amount: data.amountCents,
           description: "Depósito NOX",
           expiration: 1200,
+          expires_at: requestedExpiresAt,
           customer: {
             name: `Cliente ${profile.public_id}`,
             email,
