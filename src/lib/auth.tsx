@@ -24,6 +24,23 @@ export interface RegisterInput {
   password: string;
 }
 
+export type RegistrationErrorCode =
+  | "email_registered"
+  | "invalid_email"
+  | "invalid_cpf"
+  | "invalid_phone"
+  | "weak_password"
+  | "short_password"
+  | "profile_error"
+  | "unknown";
+
+export class RegistrationError extends Error {
+  constructor(public readonly code: RegistrationErrorCode, message: string) {
+    super(message);
+    this.name = "RegistrationError";
+  }
+}
+
 const FAVORITES_KEY = "nox.favorites";
 
 const ALPHABET = "abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789";
@@ -97,6 +114,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [loadProfile]);
 
   const register = useCallback(async (input: RegisterInput) => {
+    const cpfDigits = input.cpf.replace(/\D/g, "");
+    const phoneDigits = input.phone.replace(/\D/g, "").replace(/^55/, "");
+    if (cpfDigits.length !== 11) throw new RegistrationError("invalid_cpf", "CPF inválido.");
+    if (phoneDigits.length !== 10 && phoneDigits.length !== 11) {
+      throw new RegistrationError("invalid_phone", "Telefone inválido.");
+    }
+    if (input.password.length < 6) {
+      throw new RegistrationError("short_password", "A senha deve ter no mínimo 6 caracteres.");
+    }
     const publicId = generatePublicId();
     const { data, error } = await supabase.auth.signUp({
       email: input.email.trim().toLowerCase(),
@@ -106,7 +132,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         data: { public_id: publicId, cpf: input.cpf, phone: input.phone },
       },
     });
-    if (error) throw error;
+    if (error) {
+      const message = error.message.toLowerCase();
+      if (message.includes("known to be weak") || message.includes("easy to guess") || message.includes("pwned")) {
+        throw new RegistrationError("weak_password", "Esta senha é muito comum. Escolha uma senha mais forte.");
+      }
+      if (message.includes("already registered") || message.includes("already been registered") || message.includes("already exists")) {
+        throw new RegistrationError("email_registered", "E-mail já cadastrado.");
+      }
+      if (message.includes("invalid email") || message.includes("email address")) {
+        throw new RegistrationError("invalid_email", "E-mail inválido.");
+      }
+      if (message.includes("password") && message.includes("characters")) {
+        throw new RegistrationError("short_password", "A senha deve ter no mínimo 6 caracteres.");
+      }
+      if (message.includes("cpf") || message.includes("duplicate key") && message.includes("cpf")) {
+        throw new RegistrationError("invalid_cpf", "CPF inválido ou já cadastrado.");
+      }
+      if (message.includes("phone") || message.includes("telefone")) {
+        throw new RegistrationError("invalid_phone", "Telefone inválido.");
+      }
+      if (message.includes("database error") || message.includes("saving new user")) {
+        throw new RegistrationError("profile_error", "Não foi possível criar o perfil. Verifique CPF e telefone.");
+      }
+      throw new RegistrationError("unknown", "Não foi possível criar a conta. Tente novamente.");
+    }
+    if (data.user?.identities?.length === 0) {
+      throw new RegistrationError("email_registered", "E-mail já cadastrado.");
+    }
     if (!data.session || !data.user) return null;
     return loadProfile(data.user);
   }, [loadProfile]);
