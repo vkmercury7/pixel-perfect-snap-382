@@ -117,8 +117,8 @@ export const createPixDeposit = createServerFn({ method: "POST" })
         body: JSON.stringify({
           amount: data.amountCents,
           description: "Depósito NOX",
-          expiration_in_seconds: 1200,
-          expires_at: requestedExpiresAt,
+          expiration: 1200,
+          expires_in: 1200,
           customer: {
             name: `Cliente ${profile.public_id}`,
             email,
@@ -188,7 +188,7 @@ export const createPixDeposit = createServerFn({ method: "POST" })
       transactionId: transaction.id,
       qrCode: parsed.data.pix.qr_code,
       qrCodeUrl: parsed.data.pix.qr_code_url ?? "",
-      expiresAt: parsed.data.pix.expires_at,
+      expiresAt: new Date(Math.min(new Date(parsed.data.pix.expires_at).getTime(), new Date(requestedExpiresAt).getTime())).toISOString(),
       amountCents: data.amountCents,
     };
   });
