@@ -58,8 +58,8 @@ export function AccountMenu({ user }: { user: NoxUser }) {
         <DropdownMenuSeparator />
         <DropdownMenuItem
           className="cursor-pointer text-destructive focus:text-destructive"
-          onClick={() => {
-            logout();
+          onClick={async () => {
+            await logout();
             navigate({ to: "/" });
           }}
         >

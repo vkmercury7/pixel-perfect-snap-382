@@ -7,7 +7,7 @@ import { VIP_LEVELS, useVip } from "@/lib/vip";
 export function VipCard() {
   const { tier, progress } = useVip();
   const [open, setOpen] = useState(false);
-  const current = VIP_LEVELS.find((level) => level.id === tier) ?? VIP_LEVELS[0];
+  const currentLabel = VIP_LEVELS.find((level) => level.id === tier)?.label ?? "Bronze";
 
   return (
     <>
@@ -16,7 +16,7 @@ export function VipCard() {
           <h2 className="flex items-center gap-2 text-sm font-bold uppercase tracking-wide">
             <Crown className="h-4 w-4 text-primary" /> NOX VIP
           </h2>
-          <span className="rounded-md bg-primary/15 px-2 py-1 text-[0.65rem] font-extrabold uppercase text-primary">{current.label}</span>
+          <span className="rounded-md bg-primary/15 px-2 py-1 text-[0.65rem] font-extrabold uppercase text-primary">{currentLabel}</span>
         </div>
         <div className="mt-3 flex items-end justify-between gap-3">
           <div>
