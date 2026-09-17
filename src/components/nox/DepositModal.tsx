@@ -61,7 +61,7 @@ export function DepositModal() {
               Continuar
             </button>
             <p className="text-center text-[0.65rem] text-muted-foreground">
-              Nenhum valor é creditado nesta etapa de demonstração.
+              Após o pagamento o valor será creditado automaticamente em sua conta.
             </p>
           </>
         ) : (
