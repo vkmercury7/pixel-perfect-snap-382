@@ -14,7 +14,117 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      profiles: {
+        Row: {
+          cpf: string
+          created_at: string
+          phone: string
+          public_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          cpf: string
+          created_at?: string
+          phone: string
+          public_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          cpf?: string
+          created_at?: string
+          phone?: string
+          public_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_pix_keys: {
+        Row: {
+          created_at: string
+          type: Database["public"]["Enums"]["pix_key_type"]
+          updated_at: string
+          user_id: string
+          value: string
+        }
+        Insert: {
+          created_at?: string
+          type: Database["public"]["Enums"]["pix_key_type"]
+          updated_at?: string
+          user_id: string
+          value: string
+        }
+        Update: {
+          created_at?: string
+          type?: Database["public"]["Enums"]["pix_key_type"]
+          updated_at?: string
+          user_id?: string
+          value?: string
+        }
+        Relationships: []
+      }
+      wallet_transactions: {
+        Row: {
+          amount_cents: number
+          created_at: string
+          external_id: string | null
+          id: string
+          status: Database["public"]["Enums"]["wallet_transaction_status"]
+          type: Database["public"]["Enums"]["wallet_transaction_type"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount_cents: number
+          created_at?: string
+          external_id?: string | null
+          id?: string
+          status?: Database["public"]["Enums"]["wallet_transaction_status"]
+          type: Database["public"]["Enums"]["wallet_transaction_type"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount_cents?: number
+          created_at?: string
+          external_id?: string | null
+          id?: string
+          status?: Database["public"]["Enums"]["wallet_transaction_status"]
+          type?: Database["public"]["Enums"]["wallet_transaction_type"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      wallets: {
+        Row: {
+          balance_cents: number
+          created_at: string
+          updated_at: string
+          user_id: string
+          vip_progress_cents: number
+          vip_tier: Database["public"]["Enums"]["vip_tier"]
+        }
+        Insert: {
+          balance_cents?: number
+          created_at?: string
+          updated_at?: string
+          user_id: string
+          vip_progress_cents?: number
+          vip_tier?: Database["public"]["Enums"]["vip_tier"]
+        }
+        Update: {
+          balance_cents?: number
+          created_at?: string
+          updated_at?: string
+          user_id?: string
+          vip_progress_cents?: number
+          vip_tier?: Database["public"]["Enums"]["vip_tier"]
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +133,14 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      pix_key_type: "cpf" | "email" | "phone" | "random"
+      vip_tier: "bronze" | "silver" | "gold" | "diamond"
+      wallet_transaction_status:
+        | "pending"
+        | "approved"
+        | "rejected"
+        | "canceled"
+      wallet_transaction_type: "deposit" | "withdrawal" | "bonus"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +267,16 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      pix_key_type: ["cpf", "email", "phone", "random"],
+      vip_tier: ["bronze", "silver", "gold", "diamond"],
+      wallet_transaction_status: [
+        "pending",
+        "approved",
+        "rejected",
+        "canceled",
+      ],
+      wallet_transaction_type: ["deposit", "withdrawal", "bonus"],
+    },
   },
 } as const
