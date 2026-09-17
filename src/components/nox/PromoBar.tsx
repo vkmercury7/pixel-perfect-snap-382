@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Clock3, X } from "lucide-react";
 
-import promoArt from "@/assets/nox_promocao_30_rodadas.png";
+import promoArt from "@/assets/nox-rabbit-primeiro-deposito.webp";
 import { Button } from "@/components/ui/button";
 import { useAuthModal } from "@/lib/auth-modal";
 
