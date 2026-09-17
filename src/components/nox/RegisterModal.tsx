@@ -121,7 +121,7 @@ export function RegisterModal() {
           </DialogTitle>
           <DialogDescription className="mt-1 text-center text-xs text-muted-foreground">
             {isRegister
-              ? "Leva menos de um minuto. Ambiente de demonstração, sem dinheiro real."
+              ? "Leva menos de um minuto."
               : "Use o e-mail cadastrado na sua conta."}
           </DialogDescription>
 
