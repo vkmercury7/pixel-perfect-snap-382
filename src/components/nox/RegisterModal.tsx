@@ -6,7 +6,7 @@ import heroBanner from "@/assets/hero-banner.jpg";
 import { Logo } from "./Logo";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
-import { useAuth } from "@/lib/auth";
+import { RegistrationError, useAuth } from "@/lib/auth";
 import { useAuthModal } from "@/lib/auth-modal";
 
 function maskCPF(value: string) {
@@ -39,6 +39,7 @@ export function RegisterModal() {
   const [showPassword, setShowPassword] = useState(false);
   const [accepted, setAccepted] = useState(false);
   const [identifier, setIdentifier] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
   // Abre o cadastro automaticamente ~3s após a primeira visita (nunca para quem já tem conta ativa).
   useEffect(() => {
@@ -57,7 +58,8 @@ export function RegisterModal() {
       toast.error("Informe um CPF com 11 dígitos.");
       return;
     }
-    if (phone.replace(/\D/g, "").length < 10) {
+    const phoneLength = phone.replace(/\D/g, "").length;
+    if (phoneLength !== 10 && phoneLength !== 11) {
       toast.error("Informe um telefone válido.");
       return;
     }
@@ -72,11 +74,14 @@ export function RegisterModal() {
 
 
     try {
+      setSubmitting(true);
       const created = await register({ cpf, email, phone: `+55 ${phone}`, password });
       close();
       toast.success(created ? `Conta criada! Seu ID é ${created.publicId}` : "Conta criada! Confira seu e-mail para confirmar o cadastro.");
-    } catch {
-      toast.error("Não foi possível criar a conta. Confira os dados informados.");
+    } catch (error) {
+      toast.error(error instanceof RegistrationError ? error.message : "Não foi possível criar a conta. Tente novamente.");
+    } finally {
+      setSubmitting(false);
     }
   }
 
@@ -182,9 +187,10 @@ export function RegisterModal() {
 
               <button
                 type="submit"
+                disabled={submitting}
                 className="mt-1 w-full rounded-xl bg-primary py-3 text-sm font-bold uppercase tracking-wide text-primary-foreground shadow-glow transition-opacity hover:opacity-90"
               >
-                Criar conta
+                {submitting ? "Criando conta..." : "Criar conta"}
               </button>
 
               <p className="pt-1 text-center text-[0.7rem] text-muted-foreground">
