@@ -122,6 +122,7 @@ export const createPixDeposit = createServerFn({ method: "POST" })
             document: { type: "cpf", number: cpf },
           },
           metadata: {
+            external_reference: transaction.id,
             wallet_transaction_id: transaction.id,
             user_id: context.userId,
           },
