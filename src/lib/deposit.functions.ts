@@ -40,9 +40,20 @@ function safeRequestId(payload: unknown): string | undefined {
   return typeof value === "string" ? value.slice(0, 160) : undefined;
 }
 
+function safeProviderError(payload: unknown) {
+  if (!payload || typeof payload !== "object") return undefined;
+  const error = (payload as Record<string, unknown>)["error"];
+  if (!error || typeof error !== "object") return undefined;
+  const record = error as Record<string, unknown>;
+  return {
+    code: typeof record["code"] === "string" ? record["code"].slice(0, 80) : undefined,
+    message: typeof record["message"] === "string" ? record["message"].slice(0, 240) : undefined,
+  };
+}
+
 export const createPixDeposit = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input) => depositInput.parse(input))
+  .validator((input) => depositInput.parse(input))
   .handler(async ({ data, context }): Promise<CreatedPixCharge> => {
     const pinPayToken = process.env["PINPAY_TOKEN"];
     if (!pinPayToken) {
@@ -129,6 +140,7 @@ export const createPixDeposit = createServerFn({ method: "POST" })
         transactionId: transaction.id,
         status: response.status,
         requestId: safeRequestId(responsePayload),
+        providerError: safeProviderError(responsePayload),
       });
       await supabaseAdmin.from("wallet_transactions").update({ status: "canceled" }).eq("id", transaction.id);
       throw new Error("Não foi possível gerar o PIX. Tente novamente.");
