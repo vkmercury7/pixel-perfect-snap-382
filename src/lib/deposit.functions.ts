@@ -17,7 +17,7 @@ const pinPayResponse = z.object({
   id: z.union([z.string(), z.number()]).transform(String),
   pix: z.object({
     qr_code: z.string().min(1),
-    qr_code_url: z.string().min(1),
+    qr_code_url: z.string().nullable().optional(),
     expires_at: z.string().min(1),
   }),
   amount: z.number().optional(),
@@ -166,10 +166,6 @@ export const createPixDeposit = createServerFn({ method: "POST" })
       console.error("[PinPay] Invalid success response", {
         transactionId: transaction.id,
         requestId: safeRequestId(responsePayload),
-        idType: typeof raw?.["id"],
-        qrCodeType: typeof rawPix?.["qr_code"],
-        qrCodeUrlType: typeof rawPix?.["qr_code_url"],
-        expiresAtType: typeof rawPix?.["expires_at"],
       });
       await supabaseAdmin.from("wallet_transactions").update({ status: "canceled" }).eq("id", transaction.id);
       throw new Error("Não foi possível gerar o PIX. Tente novamente.");
@@ -191,7 +187,7 @@ export const createPixDeposit = createServerFn({ method: "POST" })
     return {
       transactionId: transaction.id,
       qrCode: parsed.data.pix.qr_code,
-      qrCodeUrl: parsed.data.pix.qr_code_url,
+      qrCodeUrl: parsed.data.pix.qr_code_url ?? "",
       expiresAt: parsed.data.pix.expires_at,
       amountCents: data.amountCents,
     };

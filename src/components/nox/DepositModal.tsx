@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Check, Copy, LoaderCircle, QrCode } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
+import { QRCodeSVG } from "qrcode.react";
 import { toast } from "sonner";
 
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -128,13 +129,15 @@ export function DepositModal() {
             <div className="surface-panel flex flex-col items-center gap-3 rounded-2xl p-4 text-center">
               <p className="text-xs text-muted-foreground">Valor</p>
               <p className="text-2xl font-extrabold">{formatBRL(charge?.amountCents ?? cents)}</p>
-              {charge?.qrCodeUrl ? (
-                <div className="flex size-48 items-center justify-center overflow-hidden rounded-lg bg-foreground p-2">
+              <div className="flex size-48 items-center justify-center overflow-hidden rounded-lg bg-foreground p-2">
+                {charge?.qrCodeUrl ? (
                   <img src={charge.qrCodeUrl} alt="QR Code PIX" className="block h-full w-full object-contain" />
-                </div>
-              ) : (
-                <QrCode className="h-12 w-12 text-primary" />
-              )}
+                ) : charge?.qrCode ? (
+                  <QRCodeSVG value={charge.qrCode} size={176} level="M" aria-label="QR Code PIX" />
+                ) : (
+                  <QrCode className="h-12 w-12 text-primary" />
+                )}
+              </div>
               <div className="w-full rounded-lg border border-border bg-background p-3">
                 <p className="line-clamp-3 break-all text-left text-xs text-muted-foreground">{charge?.qrCode}</p>
               </div>
