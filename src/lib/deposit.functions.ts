@@ -117,7 +117,7 @@ export const createPixDeposit = createServerFn({ method: "POST" })
         body: JSON.stringify({
           amount: data.amountCents,
           description: "Depósito NOX",
-          expiration: 1200,
+          expiration_in_seconds: 1200,
           expires_at: requestedExpiresAt,
           customer: {
             name: `Cliente ${profile.public_id}`,
