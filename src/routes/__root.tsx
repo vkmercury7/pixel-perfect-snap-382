@@ -87,12 +87,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { title: "NOX CASINO" },
       {
         name: "description",
-        content: "NOX CASINO — slots e jogos crash em ambiente de demonstração.",
+        content: "NOX CASINO — slots e jogos crash.",
       },
       { property: "og:title", content: "NOX CASINO" },
       {
         property: "og:description",
-        content: "Slots e jogos crash em ambiente de demonstração.",
+        content: "Slots e jogos crash.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
