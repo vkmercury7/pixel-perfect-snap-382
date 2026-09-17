@@ -10,16 +10,16 @@ import { categories, gamesByCategory } from "@/lib/games";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "NOX CASINO — Slots e Crash em demonstração" },
+      { title: "NOX CASINO — Slots e Crash" },
       {
         name: "description",
         content:
-          "NOX CASINO: catálogo de slots e jogos crash em ambiente de demonstração, com experiência mobile de aplicativo.",
+          "NOX CASINO: catálogo de slots e jogos crash, com experiência mobile de aplicativo.",
       },
-      { property: "og:title", content: "NOX CASINO — Slots e Crash em demonstração" },
+      { property: "og:title", content: "NOX CASINO — Slots e Crash" },
       {
         property: "og:description",
-        content: "Catálogo de slots e crash em ambiente de demonstração, feito para o mobile.",
+        content: "Catálogo de slots e crash, feito para o mobile.",
       },
     ],
   }),
