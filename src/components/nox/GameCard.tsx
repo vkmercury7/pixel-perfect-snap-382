@@ -18,18 +18,18 @@ export function GameCard({ game, className }: { game: Game; className?: string }
 
   return (
     <div className={cn("group w-full", className)}>
-      <div className="relative overflow-hidden rounded-xl border border-border bg-card shadow-card">
+      <div className="relative aspect-[3/4] w-full overflow-hidden rounded-xl border border-border bg-card shadow-card">
         <button
           type="button"
           onClick={() => playGame(game)}
           aria-label={`Jogar ${game.name}`}
-          className="block w-full outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          className="block h-full w-full overflow-hidden rounded-[inherit] outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
           <img
             src={game.cover}
             alt={`Capa do jogo ${game.name}`}
             loading="lazy"
-            className="aspect-[3/4] w-full object-cover transition-transform duration-500 group-hover:scale-105"
+            className="block h-full w-full max-w-full object-cover object-center"
           />
         </button>
 
