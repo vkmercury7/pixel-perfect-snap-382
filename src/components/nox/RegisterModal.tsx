@@ -64,7 +64,7 @@ export function RegisterModal() {
       return;
     }
     if (password.length < 6) {
-      toast.error("A senha precisa ter ao menos 6 caracteres.");
+      toast.error("A senha deve ter pelo menos 6 caracteres.");
       return;
     }
     if (!accepted) {
@@ -77,7 +77,7 @@ export function RegisterModal() {
       setSubmitting(true);
       const created = await register({ cpf, email, phone: `+55 ${phone}`, password });
       close();
-      toast.success(created ? `Conta criada! Seu ID é ${created.publicId}` : "Conta criada! Confira seu e-mail para confirmar o cadastro.");
+      toast.success(created ? `Conta criada! Seu ID é ${created.publicId}` : "Conta criada com sucesso!");
     } catch (error) {
       toast.error(error instanceof RegistrationError ? error.message : "Não foi possível criar a conta. Tente novamente.");
     } finally {
