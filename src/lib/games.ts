@@ -107,5 +107,30 @@ export const games: Game[] = [
 ];
 
 export function gamesByCategory(id: CategoryId): Game[] {
+  if (id === "slots") {
+    const slotOrder = [
+      "fortune-rabbit",
+      "tasty-bonanza",
+      "fortune-paw",
+      "classic-coins",
+      "diamond-hits",
+      "fortune-fruits",
+      "power-hot-40-triple-boost",
+      "inferno-fortune-instastrike",
+      "mahjong-ways",
+      "lucky-neko",
+      "fortune-dragon",
+      "burning-classics-royal-edition",
+      "holly-jolly-bonanza-2",
+      "jokers-fortune",
+      "fortune-tiger",
+      "fortune-ox",
+    ];
+
+    return slotOrder
+      .map((gameId) => games.find((game) => game.id === gameId))
+      .filter((game): game is Game => Boolean(game));
+  }
+
   return games.filter((g) => g.categories.includes(id));
 }
