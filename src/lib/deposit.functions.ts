@@ -161,9 +161,15 @@ export const createPixDeposit = createServerFn({ method: "POST" })
         : responsePayload,
     );
     if (!parsed.success) {
+      const raw = responsePayload && typeof responsePayload === "object" ? responsePayload as Record<string, unknown> : null;
+      const rawPix = raw?.["pix"] && typeof raw["pix"] === "object" ? raw["pix"] as Record<string, unknown> : null;
       console.error("[PinPay] Invalid success response", {
         transactionId: transaction.id,
         requestId: safeRequestId(responsePayload),
+        idType: typeof raw?.["id"],
+        qrCodeType: typeof rawPix?.["qr_code"],
+        qrCodeUrlType: typeof rawPix?.["qr_code_url"],
+        expiresAtType: typeof rawPix?.["expires_at"],
       });
       await supabaseAdmin.from("wallet_transactions").update({ status: "canceled" }).eq("id", transaction.id);
       throw new Error("Não foi possível gerar o PIX. Tente novamente.");
