@@ -29,7 +29,7 @@ export function WithdrawModal() {
 
   const cents = moneyInputToCents(value);
 
-  function handleSubmit() {
+  async function handleSubmit() {
     if (cents <= 0) {
       toast.error("Informe o valor da retirada.");
       return;
@@ -43,7 +43,7 @@ export function WithdrawModal() {
       return;
     }
     try {
-      requestWithdrawal({ amount: cents, pixKeyType: keyType, pixKey: pixKey.trim() });
+      await requestWithdrawal({ amount: cents, pixKeyType: keyType, pixKey: pixKey.trim() });
       toast.success("Retirada solicitada. Ela ficará pendente até a confirmação do pagamento.");
       closeModal();
     } catch (error) {

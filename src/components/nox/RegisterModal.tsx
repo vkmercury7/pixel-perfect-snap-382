@@ -51,7 +51,7 @@ export function RegisterModal() {
 
   const isRegister = mode === "register";
 
-  function handleRegister(event: React.FormEvent) {
+  async function handleRegister(event: React.FormEvent) {
     event.preventDefault();
     if (cpf.replace(/\D/g, "").length !== 11) {
       toast.error("Informe um CPF com 11 dígitos.");
@@ -71,15 +71,19 @@ export function RegisterModal() {
     }
 
 
-    const created = register({ cpf, email, phone: `+55 ${phone}`, password });
-    close();
-    toast.success(`Conta criada! Seu ID é ${created.publicId}`);
+    try {
+      const created = await register({ cpf, email, phone: `+55 ${phone}`, password });
+      close();
+      toast.success(created ? `Conta criada! Seu ID é ${created.publicId}` : "Conta criada! Confira seu e-mail para confirmar o cadastro.");
+    } catch {
+      toast.error("Não foi possível criar a conta. Confira os dados informados.");
+    }
   }
 
-  function handleLogin(event: React.FormEvent) {
+  async function handleLogin(event: React.FormEvent) {
     event.preventDefault();
     try {
-      const logged = login(identifier, password);
+      const logged = await login(identifier, password);
       close();
       toast.success(`Bem-vindo de volta, ${logged.publicId}`);
     } catch {
@@ -113,7 +117,7 @@ export function RegisterModal() {
           <DialogDescription className="mt-1 text-center text-xs text-muted-foreground">
             {isRegister
               ? "Leva menos de um minuto. Ambiente de demonstração, sem dinheiro real."
-              : "Use o e-mail, CPF ou ID da sua conta."}
+              : "Use o e-mail cadastrado na sua conta."}
           </DialogDescription>
 
           {isRegister ? (
@@ -194,7 +198,8 @@ export function RegisterModal() {
             <form onSubmit={handleLogin} className="mt-4 space-y-3">
               <input
                 className={fieldClass}
-                placeholder="E-mail, CPF ou ID"
+                placeholder="E-mail"
+                type="email"
                 value={identifier}
                 onChange={(e) => setIdentifier(e.target.value)}
                 required
