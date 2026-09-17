@@ -1,11 +1,17 @@
 import { Flame, Gem, Rocket, Sparkles, Star, Wallet, type LucideIcon } from "lucide-react";
 
-import coverCrash from "@/assets/cover-crash.jpg";
 import coverDragon from "@/assets/cover-dragon.jpg";
-import coverJet from "@/assets/cover-jet.jpg";
 import coverMahjong from "@/assets/cover-mahjong.jpg";
 import coverNeko from "@/assets/cover-neko.jpg";
 import coverRocket from "@/assets/cover-rocket.jpg";
+import crashAviator from "@/assets/crash-aviator.jpg";
+import crashJetX from "@/assets/crash-jetx.jpg";
+import crashCarameloSortudo from "@/assets/crash-caramelo-sortudo.jpg";
+import crashMines from "@/assets/crash-mines.jpg";
+import crashAviatorCrash from "@/assets/crash-aviator-crash.jpg";
+import crashSpaceman from "@/assets/crash-spaceman.jpg";
+import crashAviator2 from "@/assets/crash-aviator-2.jpg";
+import crashHighFlyer from "@/assets/crash-high-flyer.jpg";
 import artTiger from "@/assets/fortune_tiger.jpg";
 import artRabbit from "@/assets/fortune_rabbit.png";
 import artOx from "@/assets/fortune_ox.jpg";
@@ -77,8 +83,14 @@ export const games: Game[] = [
   { id: "mahjong-ways", name: "Mahjong Ways", provider: "Demo Play", cover: coverMahjong, categories: ["populares", "slots"], players: 2260 },
   { id: "lucky-neko", name: "Lucky Neko", provider: "Demo Play", cover: coverNeko, categories: ["slots", "populares"], players: 2110 },
   { id: "fortune-dragon", name: "Fortune Dragon", provider: "Demo Play", cover: coverDragon, categories: ["slots", "destaque"], players: 2870 },
-  { id: "aviator", name: "Aviator", provider: "Demo Play", cover: coverCrash, categories: ["crash", "populares"], tag: "hot", players: 5240 },
-  { id: "jetx", name: "JetX", provider: "Demo Play", cover: coverJet, categories: ["crash", "populares"], players: 3320 },
+  { id: "aviator", name: "Aviator", provider: "Spribe", cover: crashAviator, categories: ["crash", "populares"], tag: "hot", players: 5240 },
+  { id: "jetx", name: "JetX", provider: "Vera.bet", cover: crashJetX, categories: ["crash", "populares"], players: 3320 },
+  { id: "caramelo-sortudo", name: "Caramelo Sortudo", provider: "Demo Play", cover: crashCarameloSortudo, categories: ["crash"], players: 900 },
+  { id: "mines", name: "Mines", provider: "Spribe", cover: crashMines, categories: ["crash"], players: 4900 },
+  { id: "aviator-crash", name: "Aviator Crash", provider: "Demo Play", cover: crashAviatorCrash, categories: ["crash"], players: 1190 },
+  { id: "spaceman", name: "Spaceman", provider: "Demo Play", cover: crashSpaceman, categories: ["crash"], players: 1200 },
+  { id: "aviator-2", name: "Aviator 2", provider: "Spribe", cover: crashAviator2, categories: ["crash"], players: 4200 },
+  { id: "high-flyer", name: "High Flyer", provider: "Demo Play", cover: crashHighFlyer, categories: ["crash"], players: 900 },
   { id: "nox-rocket", name: "Nox Rocket", provider: "Nox Originals", cover: coverRocket, categories: ["crash", "exclusivos", "novidades"], tag: "exclusive", players: 1420 },
   { id: "fortune-pirates", name: "Fortune Pirates", provider: "Demo Play", cover: artFortunePirates, categories: ["destaque", "exclusivos"], players: 1770 },
   { id: "fortune-fruits", name: "Fortune Fruits", provider: "Banana Games", cover: artFortuneFruits, categories: ["populares", "slots"], players: 2230 },
