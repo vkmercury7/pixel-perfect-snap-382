@@ -115,7 +115,12 @@ export const createPixDeposit = createServerFn({ method: "POST" })
           amount: data.amountCents,
           description: "Depósito NOX",
           expires_in: 1200,
-          customer: { name: `Cliente ${profile.public_id}`, email, cpf, phone },
+          customer: {
+            name: `Cliente ${profile.public_id}`,
+            email,
+            phone,
+            document: { type: "cpf", number: cpf },
+          },
           metadata: {
             wallet_transaction_id: transaction.id,
             user_id: context.userId,
