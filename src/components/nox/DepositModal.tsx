@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { ArrowLeft, QrCode } from "lucide-react";
 
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { centsToMoneyInput, formatBRL, maskMoneyInput, moneyInputToCents } from "@/lib/money";
+import { formatBRL } from "@/lib/money";
 import { useWallet } from "@/lib/wallet";
 
 const QUICK_VALUES = [1000, 2000, 3000, 4000, 5000, 10000, 20000, 50000, 100000];
@@ -10,17 +10,17 @@ const QUICK_VALUES = [1000, 2000, 3000, 4000, 5000, 10000, 20000, 50000, 100000]
 export function DepositModal() {
   const { modal, closeModal } = useWallet();
   const open = modal === "deposit";
-  const [value, setValue] = useState("0,00");
+  const [selectedCents, setSelectedCents] = useState<number | null>(null);
   const [step, setStep] = useState<"amount" | "pix">("amount");
 
   useEffect(() => {
     if (open) {
-      setValue("0,00");
+      setSelectedCents(null);
       setStep("amount");
     }
   }, [open]);
 
-  const cents = moneyInputToCents(value);
+  const cents = selectedCents ?? 0;
 
   return (
     <Dialog open={open} onOpenChange={(next) => !next && closeModal()}>
@@ -39,7 +39,7 @@ export function DepositModal() {
                   <button
                     key={quick}
                     type="button"
-                    onClick={() => setValue(centsToMoneyInput(quick))}
+                    onClick={() => setSelectedCents(quick)}
                     className={`rounded-xl border py-2.5 text-xs font-bold transition-colors ${
                       active
                         ? "border-primary bg-primary/15 text-primary"
@@ -52,25 +52,9 @@ export function DepositModal() {
               })}
             </div>
 
-            <div className="mt-1">
-              <label htmlFor="deposit-amount" className="text-[0.7rem] font-bold uppercase tracking-wide text-muted-foreground">
-                Outro valor
-              </label>
-              <div className="mt-1.5 flex items-center gap-2 rounded-xl border border-border bg-surface px-3 py-2.5 focus-within:border-primary">
-                <span className="text-sm font-bold text-muted-foreground">R$</span>
-                <input
-                  id="deposit-amount"
-                  inputMode="numeric"
-                  value={value}
-                  onChange={(e) => setValue(maskMoneyInput(e.target.value))}
-                  className="w-full bg-transparent text-right text-base font-extrabold outline-none"
-                />
-              </div>
-            </div>
-
             <button
               type="button"
-              disabled={cents <= 0}
+              disabled={selectedCents === null}
               onClick={() => setStep("pix")}
               className="mt-1 w-full rounded-xl bg-primary py-3 text-xs font-bold uppercase tracking-wide text-primary-foreground shadow-glow transition-opacity hover:opacity-90 disabled:opacity-40"
             >
