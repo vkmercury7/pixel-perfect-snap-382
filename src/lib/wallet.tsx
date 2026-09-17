@@ -9,6 +9,7 @@ import {
 } from "react";
 
 import { useAuth } from "@/lib/auth";
+import { supabase } from "@/integrations/supabase/client";
 
 /**
  * Camada de carteira do protótipo.
@@ -19,7 +20,7 @@ import { useAuth } from "@/lib/auth";
  * O saldo NUNCA é alterado pela interface: novas contas começam em 0 e só a
  * confirmação de pagamento (backend, etapa futura) poderá creditar valores.
  */
-export type TransactionType = "deposit" | "withdrawal";
+export type TransactionType = "deposit" | "withdrawal" | "bonus";
 export type TransactionStatus = "pending" | "approved" | "rejected" | "canceled";
 export type PixKeyType = "cpf" | "email" | "phone" | "random";
 
@@ -31,8 +32,6 @@ export interface WalletTransaction {
   amount: number;
   status: TransactionStatus;
   externalId: string | null;
-  pixKeyType?: PixKeyType;
-  pixKey?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -40,6 +39,7 @@ export interface WalletTransaction {
 export const TRANSACTION_TYPE_LABEL: Record<TransactionType, string> = {
   deposit: "Depósito",
   withdrawal: "Retirada",
+  bonus: "Bônus",
 };
 
 export const TRANSACTION_STATUS_LABEL: Record<TransactionStatus, string> = {
@@ -48,18 +48,6 @@ export const TRANSACTION_STATUS_LABEL: Record<TransactionStatus, string> = {
   rejected: "Recusado",
   canceled: "Cancelado",
 };
-
-const BALANCES_KEY = "nox.balances";
-const TRANSACTIONS_KEY = "nox.transactions";
-
-function readJSON<T>(key: string, fallback: T): T {
-  try {
-    const raw = localStorage.getItem(key);
-    return raw ? (JSON.parse(raw) as T) : fallback;
-  } catch {
-    return fallback;
-  }
-}
 
 type ModalView = null | "deposit" | "withdraw";
 
@@ -72,71 +60,72 @@ interface WalletContextValue {
   openDeposit: () => void;
   openWithdraw: () => void;
   closeModal: () => void;
-  requestWithdrawal: (input: { amount: number; pixKeyType: PixKeyType; pixKey: string }) => WalletTransaction;
+  requestWithdrawal: (input: { amount: number; pixKeyType: PixKeyType; pixKey: string }) => Promise<WalletTransaction>;
+  refresh: () => Promise<void>;
 }
 
 const WalletContext = createContext<WalletContextValue | null>(null);
 
 export function WalletProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
-  const [balances, setBalances] = useState<Record<string, number>>({});
-  const [allTransactions, setAllTransactions] = useState<WalletTransaction[]>([]);
+  const [balance, setBalance] = useState(0);
+  const [transactions, setTransactions] = useState<WalletTransaction[]>([]);
   const [ready, setReady] = useState(false);
   const [modal, setModal] = useState<ModalView>(null);
 
-  useEffect(() => {
-    setBalances(readJSON<Record<string, number>>(BALANCES_KEY, {}));
-    setAllTransactions(readJSON<WalletTransaction[]>(TRANSACTIONS_KEY, []));
+  const refresh = useCallback(async () => {
+    if (!user) {
+      setBalance(0);
+      setTransactions([]);
+      setReady(true);
+      return;
+    }
+    const [{ data: wallet }, { data: rows }] = await Promise.all([
+      supabase.from("wallets").select("balance_cents").single(),
+      supabase.from("wallet_transactions").select("*").order("created_at", { ascending: false }),
+    ]);
+    setBalance(wallet?.balance_cents ?? 0);
+    setTransactions((rows ?? []).map((row) => ({
+      id: row.id,
+      userId: user.publicId,
+      type: row.type,
+      amount: row.amount_cents,
+      status: row.status,
+      externalId: row.external_id,
+      createdAt: row.created_at,
+      updatedAt: row.updated_at,
+    })));
     setReady(true);
-  }, []);
+  }, [user]);
 
-  // Toda conta nova entra na carteira com saldo zero.
-  useEffect(() => {
-    if (!ready || !user) return;
-    setBalances((prev) => {
-      if (prev[user.publicId] !== undefined) return prev;
-      const next = { ...prev, [user.publicId]: 0 };
-      localStorage.setItem(BALANCES_KEY, JSON.stringify(next));
-      return next;
-    });
-  }, [ready, user]);
-
-  const balance = user ? (balances[user.publicId] ?? 0) : 0;
-
-  const transactions = useMemo(
-    () =>
-      user
-        ? allTransactions
-            .filter((t) => t.userId === user.publicId)
-            .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
-        : [],
-    [allTransactions, user],
-  );
+  useEffect(() => { void refresh(); }, [refresh]);
 
   const requestWithdrawal = useCallback(
-    ({ amount, pixKeyType, pixKey }: { amount: number; pixKeyType: PixKeyType; pixKey: string }) => {
+    async ({ amount }: { amount: number; pixKeyType: PixKeyType; pixKey: string }) => {
       if (!user) throw new Error("Entre na sua conta para solicitar uma retirada.");
       if (amount <= 0) throw new Error("Informe um valor válido para a retirada.");
       if (amount > balance) throw new Error("Saldo insuficiente para realizar esta retirada.");
 
-      const now = new Date().toISOString();
-      const tx: WalletTransaction = {
-        id: crypto.randomUUID(),
-        userId: user.publicId,
+      const { data: authData } = await supabase.auth.getUser();
+      if (!authData.user) throw new Error("Entre na sua conta para solicitar uma retirada.");
+      const { data, error } = await supabase.from("wallet_transactions").insert({
+        user_id: authData.user.id,
         type: "withdrawal",
-        amount,
+        amount_cents: amount,
         status: "pending",
-        externalId: null,
-        pixKeyType,
-        pixKey,
-        createdAt: now,
-        updatedAt: now,
+      }).select().single();
+      if (error) throw error;
+      const tx: WalletTransaction = {
+        id: data.id,
+        userId: user.publicId,
+        type: data.type,
+        amount: data.amount_cents,
+        status: data.status,
+        externalId: data.external_id,
+        createdAt: data.created_at,
+        updatedAt: data.updated_at,
       };
-      setAllTransactions((prev) => {
-        const next = [tx, ...prev];
-        localStorage.setItem(TRANSACTIONS_KEY, JSON.stringify(next));
-        return next;
-      });
+      setTransactions((prev) => [tx, ...prev]);
       return tx;
     },
     [balance, user],
@@ -152,8 +141,9 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       openWithdraw: () => setModal("withdraw"),
       closeModal: () => setModal(null),
       requestWithdrawal,
+      refresh,
     }),
-    [balance, transactions, ready, modal, requestWithdrawal],
+    [balance, transactions, ready, modal, requestWithdrawal, refresh],
   );
 
   return <WalletContext.Provider value={value}>{children}</WalletContext.Provider>;

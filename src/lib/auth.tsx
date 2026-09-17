@@ -7,22 +7,14 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
-/**
- * Protótipo: a conta é criada localmente no navegador.
- * A interface abaixo é o único ponto de contato com "auth", então trocar
- * este arquivo por um backend real depois não afeta os componentes.
- */
 export interface NoxUser {
   publicId: string;
   cpf: string;
   email: string;
   phone: string;
   createdAt: string;
-}
-
-interface StoredUser extends NoxUser {
-  password: string;
 }
 
 export interface RegisterInput {
@@ -32,8 +24,6 @@ export interface RegisterInput {
   password: string;
 }
 
-const USERS_KEY = "nox.users";
-const SESSION_KEY = "nox.session";
 const FAVORITES_KEY = "nox.favorites";
 
 const ALPHABET = "abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789";
@@ -59,9 +49,9 @@ function readJSON<T>(key: string, fallback: T): T {
 interface AuthContextValue {
   user: NoxUser | null;
   ready: boolean;
-  register: (input: RegisterInput) => NoxUser;
-  login: (identifier: string, password: string) => NoxUser;
-  logout: () => void;
+  register: (input: RegisterInput) => Promise<NoxUser | null>;
+  login: (identifier: string, password: string) => Promise<NoxUser>;
+  logout: () => Promise<void>;
   favorites: string[];
   toggleFavorite: (gameId: string) => void;
 }
@@ -73,55 +63,65 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [favorites, setFavorites] = useState<string[]>([]);
   const [ready, setReady] = useState(false);
 
-  useEffect(() => {
-    const session = readJSON<NoxUser | null>(SESSION_KEY, null);
-    setUser(session);
-    setFavorites(readJSON<string[]>(FAVORITES_KEY, []));
-    setReady(true);
-  }, []);
-
-  const register = useCallback((input: RegisterInput) => {
-    const users = readJSON<StoredUser[]>(USERS_KEY, []);
-    const existingIds = new Set(users.map((u) => u.publicId));
-    let publicId = generatePublicId();
-    while (existingIds.has(publicId)) publicId = generatePublicId();
-
-    const stored: StoredUser = {
-      publicId,
-      cpf: input.cpf,
-      email: input.email,
-      phone: input.phone,
-      password: input.password,
-      createdAt: new Date().toISOString(),
+  const loadProfile = useCallback(async (authUser: { id: string; email?: string | null }) => {
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("public_id, cpf, phone, created_at")
+      .eq("user_id", authUser.id)
+      .single();
+    if (error) throw error;
+    const next: NoxUser = {
+      publicId: data.public_id,
+      cpf: data.cpf,
+      email: authUser.email ?? "",
+      phone: data.phone,
+      createdAt: data.created_at,
     };
-    localStorage.setItem(USERS_KEY, JSON.stringify([...users, stored]));
-
-    const { password: _password, ...publicUser } = stored;
-    localStorage.setItem(SESSION_KEY, JSON.stringify(publicUser));
-    setUser(publicUser);
-    return publicUser;
+    setUser(next);
+    return next;
   }, []);
 
-  const login = useCallback((identifier: string, password: string) => {
-    const users = readJSON<StoredUser[]>(USERS_KEY, []);
-    const key = identifier.trim().toLowerCase();
-    const found = users.find(
-      (u) =>
-        u.email.toLowerCase() === key ||
-        u.publicId.toLowerCase() === key ||
-        u.cpf.replace(/\D/g, "") === identifier.replace(/\D/g, ""),
-    );
-    if (!found || found.password !== password) {
-      throw new Error("Dados de acesso inválidos.");
-    }
-    const { password: _password, ...publicUser } = found;
-    localStorage.setItem(SESSION_KEY, JSON.stringify(publicUser));
-    setUser(publicUser);
-    return publicUser;
-  }, []);
+  useEffect(() => {
+    setFavorites(readJSON<string[]>(FAVORITES_KEY, []));
+    void supabase.auth.getUser().then(async ({ data }) => {
+      if (data.user) await loadProfile(data.user).catch(() => setUser(null));
+      setReady(true);
+    });
+    const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "SIGNED_OUT") setUser(null);
+      if ((event === "SIGNED_IN" || event === "USER_UPDATED") && session?.user) {
+        queueMicrotask(() => void loadProfile(session.user).catch(() => setUser(null)));
+      }
+    });
+    return () => listener.subscription.unsubscribe();
+  }, [loadProfile]);
 
-  const logout = useCallback(() => {
-    localStorage.removeItem(SESSION_KEY);
+  const register = useCallback(async (input: RegisterInput) => {
+    const publicId = generatePublicId();
+    const { data, error } = await supabase.auth.signUp({
+      email: input.email.trim().toLowerCase(),
+      password: input.password,
+      options: {
+        emailRedirectTo: window.location.origin,
+        data: { public_id: publicId, cpf: input.cpf, phone: input.phone },
+      },
+    });
+    if (error) throw error;
+    if (!data.session || !data.user) return null;
+    return loadProfile(data.user);
+  }, [loadProfile]);
+
+  const login = useCallback(async (identifier: string, password: string) => {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: identifier.trim().toLowerCase(),
+      password,
+    });
+    if (error || !data.user) throw error ?? new Error("Dados de acesso inválidos.");
+    return loadProfile(data.user);
+  }, [loadProfile]);
+
+  const logout = useCallback(async () => {
+    await supabase.auth.signOut();
     setUser(null);
   }, []);
 

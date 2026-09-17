@@ -16,6 +16,7 @@ import { AuthProvider } from "@/lib/auth";
 import { AuthModalProvider } from "@/lib/auth-modal";
 import { PlayGameProvider } from "@/lib/play-game";
 import { WalletProvider } from "@/lib/wallet";
+import { VipProvider } from "@/lib/vip";
 
 
 function NotFoundComponent() {
@@ -138,13 +139,15 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <WalletProvider>
-          <AuthModalProvider>
-            <PlayGameProvider>
+          <VipProvider>
+            <AuthModalProvider>
+              <PlayGameProvider>
               {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
               <Outlet />
               <Toaster position="top-center" />
-            </PlayGameProvider>
-          </AuthModalProvider>
+              </PlayGameProvider>
+            </AuthModalProvider>
+          </VipProvider>
         </WalletProvider>
       </AuthProvider>
     </QueryClientProvider>

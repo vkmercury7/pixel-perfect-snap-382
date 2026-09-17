@@ -1,4 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useMemo, useState } from "react";
 import {
   ArrowDownToLine,
   ArrowUpFromLine,
@@ -10,6 +11,7 @@ import {
 } from "lucide-react";
 
 import { PixKeySection } from "@/components/nox/PixKeySection";
+import { VipCard } from "@/components/nox/VipCard";
 import { Shell } from "@/components/nox/Shell";
 import { useAuth } from "@/lib/auth";
 import { useAuthModal } from "@/lib/auth-modal";
@@ -19,6 +21,7 @@ import {
   TRANSACTION_TYPE_LABEL,
   useWallet,
   type TransactionStatus,
+  type TransactionType,
 } from "@/lib/wallet";
 
 export const Route = createFileRoute("/conta")({
@@ -31,6 +34,8 @@ export const Route = createFileRoute("/conta")({
       },
       { property: "og:title", content: "Minha conta e carteira | NOX CASINO" },
       { property: "og:description", content: "Carteira, depósito, retirada e histórico no NOX CASINO." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: AccountPage,
@@ -48,6 +53,16 @@ function AccountPage() {
   const { open } = useAuthModal();
   const { balance, transactions, openDeposit, openWithdraw } = useWallet();
   const navigate = useNavigate();
+  const [filter, setFilter] = useState<"all" | TransactionType>("all");
+  const filteredTransactions = useMemo(
+    () => filter === "all" ? transactions : transactions.filter((transaction) => transaction.type === filter),
+    [filter, transactions],
+  );
+  const totals = useMemo(() => ({
+    deposit: transactions.filter((item) => item.type === "deposit").reduce((sum, item) => sum + item.amount, 0),
+    withdrawal: transactions.filter((item) => item.type === "withdrawal").reduce((sum, item) => sum + item.amount, 0),
+    bonus: transactions.filter((item) => item.type === "bonus").reduce((sum, item) => sum + item.amount, 0),
+  }), [transactions]);
 
   if (!ready) {
     return (
@@ -103,6 +118,9 @@ function AccountPage() {
       <h1 className="text-lg font-bold">Minha conta</h1>
 
       <section id="carteira" className="surface-panel mt-4 rounded-2xl p-4">
+        <h2 className="mb-3 flex items-center gap-2 text-sm font-bold uppercase tracking-wide">
+          <Wallet className="h-4 w-4 text-primary" /> Minha carteira
+        </h2>
         <p className="text-[0.7rem] font-bold uppercase tracking-wide text-muted-foreground">
           Saldo disponível
         </p>
@@ -124,9 +142,15 @@ function AccountPage() {
             <ArrowUpFromLine className="h-4 w-4" /> Retirar
           </button>
         </div>
+        <div className="mt-3 grid grid-cols-3 divide-x divide-border border-t border-border pt-3 text-center">
+          <div><p className="text-[0.6rem] uppercase text-muted-foreground">Depósitos</p><p className="mt-1 text-xs font-bold tabular-nums">{formatBRL(totals.deposit)}</p></div>
+          <div><p className="text-[0.6rem] uppercase text-muted-foreground">Retiradas</p><p className="mt-1 text-xs font-bold tabular-nums">{formatBRL(totals.withdrawal)}</p></div>
+          <div><p className="text-[0.6rem] uppercase text-muted-foreground">Bônus</p><p className="mt-1 text-xs font-bold tabular-nums">{formatBRL(totals.bonus)}</p></div>
+        </div>
       </section>
 
       <PixKeySection />
+      <VipCard />
 
       <nav className="surface-panel mt-3 divide-y divide-border rounded-2xl">
         {menu.map((item) => {
@@ -154,8 +178,8 @@ function AccountPage() {
         })}
         <button
           type="button"
-          onClick={() => {
-            logout();
+          onClick={async () => {
+            await logout();
             navigate({ to: "/" });
           }}
           className="flex w-full items-center gap-3 px-4 py-3.5 text-left text-destructive"
@@ -167,13 +191,23 @@ function AccountPage() {
 
       <section id="historico" className="surface-panel mt-3 rounded-2xl p-4">
         <h2 className="flex items-center gap-2 text-sm font-bold">
-          <History className="h-4 w-4 text-primary" /> Histórico de transações
+          <History className="h-4 w-4 text-primary" /> Histórico da carteira
         </h2>
-        {transactions.length === 0 ? (
-          <p className="mt-2 text-xs text-muted-foreground">Nenhuma transação encontrada.</p>
+        <div className="mt-3 flex gap-1 overflow-x-auto pb-1">
+          {([
+            ["all", "Todos"],
+            ["deposit", "Depósitos"],
+            ["withdrawal", "Retiradas"],
+            ["bonus", "Bônus"],
+          ] as const).map(([id, label]) => (
+            <button key={id} type="button" onClick={() => setFilter(id)} className={`shrink-0 rounded-lg border px-2.5 py-1.5 text-[0.6rem] font-bold uppercase ${filter === id ? "border-primary bg-primary/15 text-primary" : "border-border text-muted-foreground"}`}>{label}</button>
+          ))}
+        </div>
+        {filteredTransactions.length === 0 ? (
+          <p className="mt-3 text-xs text-muted-foreground">Nenhuma movimentação encontrada.</p>
         ) : (
           <ul className="mt-3 divide-y divide-border">
-            {transactions.map((tx) => (
+            {filteredTransactions.map((tx) => (
               <li key={tx.id} className="flex items-center justify-between gap-3 py-3">
                 <div className="min-w-0">
                   <p className="text-xs font-bold">{TRANSACTION_TYPE_LABEL[tx.type]}</p>
