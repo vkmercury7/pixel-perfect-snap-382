@@ -3,13 +3,7 @@ import { KeyRound } from "lucide-react";
 import { toast } from "sonner";
 
 import { useAuth } from "@/lib/auth";
-
-/**
- * Protótipo: a chave PIX de retirada fica salva por usuário (publicId),
- * então continua cadastrada depois de sair e entrar novamente.
- * Trocar apenas este armazenamento por um backend real depois.
- */
-const PIX_KEYS_STORAGE = "nox.pixKeys";
+import { supabase } from "@/integrations/supabase/client";
 
 type PixKeyType = "cpf" | "phone" | "email" | "random";
 
@@ -23,15 +17,6 @@ const TYPES: { id: PixKeyType; label: string; placeholder: string }[] = [
 interface StoredPixKey {
   type: PixKeyType;
   value: string;
-}
-
-function readAll(): Record<string, StoredPixKey> {
-  try {
-    const raw = localStorage.getItem(PIX_KEYS_STORAGE);
-    return raw ? (JSON.parse(raw) as Record<string, StoredPixKey>) : {};
-  } catch {
-    return {};
-  }
 }
 
 function maskKey(value: string) {
@@ -54,27 +39,37 @@ export function PixKeySection() {
 
   useEffect(() => {
     if (!user) return;
-    const current = readAll()[user.publicId] ?? null;
-    setSaved(current);
-    setEditing(!current);
-    if (current) {
-      setType(current.type);
-      setValue(current.value);
-    }
+    void supabase.from("user_pix_keys").select("type, value").maybeSingle().then(({ data }) => {
+      const current = data ? { type: data.type, value: data.value } : null;
+      setSaved(current);
+      setEditing(!current);
+      if (current) {
+        setType(current.type);
+        setValue(current.value);
+      }
+    });
   }, [user]);
 
   if (!user) return null;
 
-  const handleSave = () => {
+  const handleSave = async () => {
     const clean = value.trim();
     if (!clean) {
       toast.error("Digite sua chave PIX para continuar.");
       return;
     }
-    const all = readAll();
     const entry: StoredPixKey = { type, value: clean };
-    all[user.publicId] = entry;
-    localStorage.setItem(PIX_KEYS_STORAGE, JSON.stringify(all));
+    const { data: authData } = await supabase.auth.getUser();
+    if (!authData.user) return;
+    const { error } = await supabase.from("user_pix_keys").upsert({
+      user_id: authData.user.id,
+      type,
+      value: clean,
+    });
+    if (error) {
+      toast.error("Não foi possível salvar sua chave PIX.");
+      return;
+    }
     setSaved(entry);
     setEditing(false);
     toast.success("Chave PIX cadastrada com sucesso.");
