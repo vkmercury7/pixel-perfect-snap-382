@@ -63,7 +63,7 @@ export const createPixDeposit = createServerFn({ method: "POST" })
 
     const { data: profile, error: profileError } = await context.supabase
       .from("profiles")
-      .select("cpf, phone")
+      .select("public_id, cpf, phone")
       .eq("user_id", context.userId)
       .single();
 
@@ -115,7 +115,7 @@ export const createPixDeposit = createServerFn({ method: "POST" })
           amount: data.amountCents,
           description: "Depósito NOX",
           expires_in: 1200,
-          customer: { email, cpf, phone },
+          customer: { name: `Cliente ${profile.public_id}`, email, cpf, phone },
           metadata: {
             wallet_transaction_id: transaction.id,
             user_id: context.userId,
