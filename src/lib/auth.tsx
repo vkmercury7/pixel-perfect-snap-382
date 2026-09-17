@@ -128,7 +128,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       email: input.email.trim().toLowerCase(),
       password: input.password,
       options: {
-        emailRedirectTo: window.location.origin,
+        emailRedirectTo: "https://noxcassino.netlify.app/",
         data: { public_id: publicId, cpf: input.cpf, phone: input.phone },
       },
     });
