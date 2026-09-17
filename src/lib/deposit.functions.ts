@@ -167,6 +167,11 @@ export const createPixDeposit = createServerFn({ method: "POST" })
           && (responsePayload as { data: unknown }).data && typeof (responsePayload as { data: unknown }).data === "object"
           ? Object.keys((responsePayload as { data: Record<string, unknown> }).data)
           : [],
+        pixKeys: responsePayload && typeof responsePayload === "object"
+          && (responsePayload as Record<string, unknown>)["pix"]
+          && typeof (responsePayload as Record<string, unknown>)["pix"] === "object"
+          ? Object.keys((responsePayload as { pix: Record<string, unknown> }).pix)
+          : [],
       });
       await supabaseAdmin.from("wallet_transactions").update({ status: "canceled" }).eq("id", transaction.id);
       throw new Error("Não foi possível gerar o PIX. Tente novamente.");
